@@ -13,5 +13,5 @@ This mod will improve the crafter block.
 
 ## Features
 ### New Crafter Mechanism
-- The Crafter block can no longer receive a redstone signal unless it has the crafting output or the quantity of materials for crafting something is less than 2.
+- The Crafter block will only produce its crafting output if the quantity of items in each crafter slot is more than 1.
 
