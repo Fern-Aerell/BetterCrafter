@@ -7,14 +7,18 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static net.minecraft.block.CrafterBlock.*;
@@ -23,10 +27,11 @@ import static net.minecraft.block.CrafterBlock.*;
 abstract class CrafterBlockMixin {
 
     @Inject(method = "neighborUpdate", at = @At("HEAD"), cancellable = true)
-    private void neighborUpdateInject(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify, CallbackInfo ci) {
+    private void neighborUpdateInject(BlockState state, World world, BlockPos pos, Block sourceBlock, WireOrientation wireOrientation, boolean notify, CallbackInfo ci) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if(blockEntity instanceof CrafterBlockEntity crafterBlockEntity) {
-            Optional<CraftingRecipe> optional = getCraftingRecipe(world, crafterBlockEntity);
+            CraftingRecipeInput craftingRecipeInput = crafterBlockEntity.createRecipeInput();
+            Optional<RecipeEntry<CraftingRecipe>> optional = getCraftingRecipe(Objects.requireNonNull(world.getServer()).getOverworld(), craftingRecipeInput);
             if(optional.isEmpty()) {
                 if(world.getBlockState(pos).get(TRIGGERED)) {
                     world.setBlockState(pos, state.with(TRIGGERED, false));
@@ -34,7 +39,7 @@ abstract class CrafterBlockMixin {
                 }
                 ci.cancel();
             }else{
-                for (ItemStack itemStack : crafterBlockEntity.method_11282()) {
+                for (ItemStack itemStack : crafterBlockEntity.getHeldStacks()) {
                     if (itemStack.getCount() == 1) {
                         if(world.getBlockState(pos).get(TRIGGERED)) {
                             world.setBlockState(pos, state.with(TRIGGERED, false));
@@ -52,7 +57,7 @@ abstract class CrafterBlockMixin {
     private void craftInject(BlockState state, ServerWorld world, BlockPos pos, CallbackInfo ci) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if(blockEntity instanceof CrafterBlockEntity crafterBlockEntity) {
-            for (ItemStack itemStack : crafterBlockEntity.method_11282()) {
+            for (ItemStack itemStack : crafterBlockEntity.getHeldStacks()) {
                 if (itemStack.getCount() == 1) {
                     ci.cancel();
                     break;

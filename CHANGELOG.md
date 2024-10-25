@@ -1,4 +1,13 @@
-# 1.0.0-1.20.4 (Latest)
+# 1.0.0-1.21.3 (Latest)
+
+Update for Fabric Minecraft 1.21.3
+
+## Required
+- Minecraft Version : **1.21.3**
+- Fabric Loader Version : **0.16.7**
+- Fabric API Version : **0.106.1+1.21.3**
+
+# 1.0.0-1.20.4
 
 Update for Fabric Minecraft 1.20.4
 
